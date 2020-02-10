@@ -122,6 +122,32 @@ var crontests = []crontest{
 		},
 	},
 	{
+		"0 0 * * MON-SUN",
+		"Mon 2006-01-02 15:04",
+		[]crontimes{
+			{"2020-01-01 00:00:00", "Thu 2020-01-02 00:00"},
+			{"2020-01-02 00:00:00", "Fri 2020-01-03 00:00"},
+			{"2020-01-03 00:00:00", "Sat 2020-01-04 00:00"},
+			{"2020-01-04 00:00:00", "Sun 2020-01-05 00:00"},
+			{"2020-01-05 00:00:00", "Mon 2020-01-06 00:00"},
+			{"2020-01-06 00:00:00", "Tue 2020-01-07 00:00"},
+			{"2020-01-07 00:00:00", "Wed 2020-01-08 00:00"},
+		},
+	},
+	{
+		"0 0 * * WED-MON",
+		"Mon 2006-01-02 15:04",
+		[]crontimes{
+			{"2020-01-01 00:00:00", "Thu 2020-01-02 00:00"},
+			{"2020-01-02 00:00:00", "Fri 2020-01-03 00:00"},
+			{"2020-01-03 00:00:00", "Sat 2020-01-04 00:00"},
+			{"2020-01-04 00:00:00", "Sun 2020-01-05 00:00"},
+			{"2020-01-05 00:00:00", "Mon 2020-01-06 00:00"},
+			{"2020-01-06 00:00:00", "Wed 2020-01-08 00:00"},
+			{"2020-01-07 00:00:00", "Wed 2020-01-08 00:00"},
+		},
+	},
+	{
 		"0 0 * * friday",
 		"Mon 2006-01-02 15:04",
 		[]crontimes{
@@ -210,6 +236,35 @@ func TestExpressions(t *testing.T) {
 			if nextstr != times.next {
 				t.Errorf(`("%s").Next("%s") = "%s", got "%s"`, test.expr, times.from, times.next, nextstr)
 			}
+		}
+	}
+}
+
+func TestPopulateMany_MondayToSunday(t *testing.T) {
+	dow := make(map[int]bool)
+	populateMany(dow, 1, 0, 1)
+	for key, value := range dow {
+		if !value {
+			t.Errorf("Key: %d returned 'false', expeteced 'true'", key)
+		}
+	}
+}
+
+func TestPopulateMany_WednesdayToMonday(t *testing.T) {
+	dow := make(map[int]bool)
+	expectedDow := map[int]bool{
+		0: true,
+		1: true,
+		2: false,
+		3: true,
+		4: true,
+		5: true,
+		6: true,
+	}
+	populateDow(dow, 3, 1, 1)
+	for key, value := range expectedDow {
+		if dow[key] != value {
+			t.Errorf("Key: %d returned '%t', expeteced '%t'", key, dow[key], value)
 		}
 	}
 }

@@ -319,13 +319,7 @@ func (expr *Expression) dowFieldHandler(s string) error {
 		case one:
 			populateOne(expr.daysOfWeek, directive.first)
 		case span:
-			var last int
-			if directive.last == 0 {
-				last = 7
-			} else {
-				last = directive.last
-			}
-			populateMany(expr.daysOfWeek, directive.first, last, directive.step)
+			populateDow(expr.daysOfWeek, directive.first, directive.last, directive.step)
 		case all:
 			populateMany(expr.daysOfWeek, directive.first, directive.last, directive.step)
 			expr.daysOfWeekRestricted = false
@@ -389,6 +383,17 @@ func populateOne(values map[int]bool, v int) {
 func populateMany(values map[int]bool, min, max, step int) {
 	for i := min; i <= max; i += step {
 		values[i] = true
+	}
+}
+
+func populateDow(values map[int]bool, min, max, step int) {
+	numberOfWeekday := 7
+	actualMax := max
+	if max < min {
+		actualMax += 7
+	}
+	for i := min; i <= actualMax; i += step {
+		values[i%numberOfWeekday] = true
 	}
 }
 
